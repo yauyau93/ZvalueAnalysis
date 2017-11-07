@@ -1,0 +1,126 @@
+﻿@model IEnumerable<CompanyFinancialAnalysis.ViewModel.CompanyFinancial>
+
+@{
+    ViewBag.Title = "Analysis";
+}
+
+
+<h2>Analysis</h2>
+
+@using (Html.BeginForm("Analysis", "CFA", FormMethod.Get))
+{
+
+
+    <div class="form-horizontal">
+        <hr />
+        <div class="form-group">
+            @Html.Label("分析組別1:大立光、玉晶光、今國光")
+            <div class="col-md-10">
+                @Html.RadioButton("group", 1)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.Label("分析組別2:台達電、研華、凌華")
+            <div class="col-md-10">
+                @Html.RadioButton("group", 2)
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="分析" class="btn btn-default" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.stockId)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.stockId)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+    }
+</table>
+
+
+
+<div id="chart_div"></div>
+
+@section scripts{
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawCurveTypes);
+
+        // Callback that creates and populates a data table,
+        // instantiates the pie chart, passes in the data and
+        // draws it.
+        function drawCurveTypes() {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'X');
+
+            @{
+                foreach (var item in Model)
+                {
+                    @:data.addColumn('number','@item.stockId');
+                }
+                var md = Model.ToList();
+                if (Model.Count()!=0)
+                {
+                    for (int i = 0; i < 9; i++)
+                    {
+                        int j = 2008 + i;
+                    @:data.addRows([['@j',@md[0].CFA_Information[i].ZValue,@md[1].CFA_Information[i].ZValue,@md[2].CFA_Information[i].ZValue]]);
+                    }
+                }
+
+            }
+
+            var options = {
+                hAxis: {
+                    title: 'Year'
+                },
+                vAxis: {
+                    title: 'Zscore'
+                },
+                series: {
+                    1: { curveType: 'function' }
+                }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

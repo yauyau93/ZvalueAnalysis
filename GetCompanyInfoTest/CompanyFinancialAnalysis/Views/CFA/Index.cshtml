@@ -1,0 +1,15 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm())
+{
+    <div>
+        @Html.TextBox("stockId", "", htmlAttributes: new { @class = "control-label col-md-2" })
+        <br />
+        <input type="submit" value="查詢"/>
+    </div>
+}
